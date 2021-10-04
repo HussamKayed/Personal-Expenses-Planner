@@ -8,4 +8,5 @@ class Transaction {
 
   Transaction(@required this.id, @required this.amount, @required this.date,
       @required this.title);
+
 }
