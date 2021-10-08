@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import './widgets/chart.dart';
 import './widgets/new_transaction.dart';
 import '../models/transaction.dart';
 import './widgets/transaction_list.dart';
@@ -14,6 +16,11 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.red,
           accentColor: Colors.deepPurple,
           fontFamily: "QuickSand",
+          textTheme: ThemeData.light().textTheme.copyWith(
+              headline6: TextStyle(
+                  fontFamily: "OpenSans",
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold)),
           appBarTheme: AppBarTheme(
               textTheme: ThemeData.light().textTheme.copyWith(
                   headline6: TextStyle(
@@ -32,18 +39,18 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _userTransactions = [
-    Transaction(
-      't1',
-      'New Shoes',
-      69.99,
-      DateTime.now(),
-    ),
-    Transaction(
-      't2',
-      'Weekly Groceries',
-      16.53,
-      DateTime.now(),
-    ),
+    // Transaction(
+    //   't1',
+    //   'New Shoes',
+    //   69.99,
+    //   DateTime.now(),
+    // ),
+    // Transaction(
+    //   't2',
+    //   'Weekly Groceries',
+    //   16.53,
+    //   DateTime.now(),
+    // ),
   ];
 
   void _startAddNewTransaction(BuildContext ctx) {
@@ -57,6 +64,12 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
+  }
+
+  List<Transaction> get _recentTransactions {
+    return _userTransactions.where((tx) {
+      return tx.date.isAfter(DateTime.now().subtract(Duration(days: 7)));
+    }).toList();
   }
 
   void _addNewTransaction(String title, double amount) {
@@ -83,16 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ListView(
         children: <Widget>[
-          Card(
-            child: Container(
-              child: Text(
-                "Chart",
-              ),
-              width: double.infinity,
-              color: Colors.blue,
-            ),
-            elevation: 5,
-          ),
+          Chart(_recentTransactions),
           TransactionList(_userTransactions)
         ],
         // mainAxisAlignment: MainAxisAlignment.spaceAround,
