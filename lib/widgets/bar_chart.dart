@@ -39,6 +39,7 @@ class BarChart extends StatelessWidget {
                 ),
               ),
             ],
+            alignment: Alignment.bottomCenter,
           ),
         ),
         SizedBox(height: 4),

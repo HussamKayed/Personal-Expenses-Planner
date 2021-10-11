@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.red,
           accentColor: Colors.deepPurple,
           fontFamily: "QuickSand",
+          errorColor: Colors.blue.shade400,
           textTheme: ThemeData.light().textTheme.copyWith(
               headline6: TextStyle(
                   fontFamily: "OpenSans",
@@ -53,6 +54,14 @@ class _MyHomePageState extends State<MyHomePage> {
     // ),
   ];
 
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransactions.removeWhere((tx) {
+        return tx.id == id;
+      });
+    });
+  }
+
   void _startAddNewTransaction(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,
@@ -72,9 +81,9 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
-  void _addNewTransaction(String title, double amount) {
+  void _addNewTransaction(String title, double amount, DateTime chosenDate) {
     final newTx =
-        Transaction(DateTime.now().toString(), title, amount, DateTime.now());
+        Transaction(DateTime.now().toString(), title, amount, chosenDate);
 
     setState(() {
       _userTransactions.add(newTx);
@@ -97,15 +106,17 @@ class _MyHomePageState extends State<MyHomePage> {
       body: ListView(
         children: <Widget>[
           Chart(_recentTransactions),
-          TransactionList(_userTransactions)
+          TransactionList(_userTransactions, _deleteTransaction)
         ],
         // mainAxisAlignment: MainAxisAlignment.spaceAround,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () {
+          _startAddNewTransaction(context);
+        },
         elevation: 90,
       ),
     );
