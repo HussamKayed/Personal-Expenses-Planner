@@ -100,6 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     final appBar = AppBar(
       title: Text('Personal Expenses'),
       actions: <Widget>[
@@ -110,39 +112,50 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.add_box_rounded))
       ],
     );
+    final Widget txListWidget = Container(
+        height: (MediaQuery.of(context).size.height -
+                appBar.preferredSize.height -
+                MediaQuery.of(context).padding.top) *
+            0.7,
+        child: TransactionList(_userTransactions, _deleteTransaction));
     return Scaffold(
       appBar: appBar,
-      body: ListView(
-        children: <Widget>[
+      body: ListView(children: <Widget>[
+        if (isLandscape)
           Row(
             children: [
+              Text("Show Chart", style: TextStyle(color: Colors.grey)),
               Switch(
                   hoverColor: Colors.amber.shade900,
-                  value: true,
-                  onChanged: (value) {
+                  value: _showChart,
+                  onChanged: (val) {
                     setState(() {
-                      _showChart = value;
+                      _showChart = val;
                     });
                   }),
             ],
             mainAxisAlignment: MainAxisAlignment.center,
           ),
+        if (!isLandscape)
+          Container(
+              height: (MediaQuery.of(context).size.height -
+                      appBar.preferredSize.height -
+                      MediaQuery.of(context).padding.top) *
+                  0.3,
+              child: Chart(_recentTransactions)),
+        if (!isLandscape) txListWidget,
+        if (isLandscape)
           _showChart
               ? Container(
                   height: (MediaQuery.of(context).size.height -
                           appBar.preferredSize.height -
                           MediaQuery.of(context).padding.top) *
-                      0.3,
-                  child: Chart(_recentTransactions))
-              : Container(
-                  height: (MediaQuery.of(context).size.height -
-                          appBar.preferredSize.height -
-                          MediaQuery.of(context).padding.top) *
                       0.7,
-                  child: TransactionList(_userTransactions, _deleteTransaction))
-        ],
-        // mainAxisAlignment: MainAxisAlignment.spaceAround,
-      ),
+                  child: Chart(_recentTransactions))
+              : txListWidget,
+      ]
+          // mainAxisAlignment: MainAxisAlignment.spaceAround,
+          ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: FloatingActionButton(
