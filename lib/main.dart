@@ -1,5 +1,8 @@
+import "dart:io";
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 
 import './widgets/chart.dart';
 import './widgets/new_transaction.dart';
@@ -102,29 +105,44 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isLandscape = mediaQuery.orientation == Orientation.landscape;
-    final appBar = AppBar(
-      title: Text('Personal Expenses'),
-      actions: <Widget>[
-        IconButton(
-            onPressed: () {
-              _startAddNewTransaction(context);
-            },
-            icon: Icon(Icons.add_box_rounded))
-      ],
-    );
+    final PreferredSizeWidget appBar = Platform.isIOS
+        ? CupertinoNavigationBar(
+            middle: Text("Personal Expenses",
+                style: TextStyle(
+                    fontFamily: "OpenSans", decorationColor: Colors.white70)),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                GestureDetector(
+                    child: Icon(CupertinoIcons.add),
+                    onTap: () => {_startAddNewTransaction(context)})
+              ],
+            ),
+          ) as PreferredSizeWidget
+        : AppBar(
+            title: Text('Personal Expenses'),
+            actions: <Widget>[
+              IconButton(
+                  onPressed: () {
+                    _startAddNewTransaction(context);
+                  },
+                  icon: Icon(Icons.add_box_rounded))
+            ],
+          );
+
     final Widget txListWidget = Container(
         height: (mediaQuery.size.height -
                 appBar.preferredSize.height -
                 mediaQuery.padding.top) *
             0.7,
         child: TransactionList(_userTransactions, _deleteTransaction));
-    return Scaffold(
-      appBar: appBar,
-      body: ListView(children: <Widget>[
+
+    final pageBody = SafeArea(
+      child: ListView(children: <Widget>[
         if (isLandscape)
           Row(
             children: [
-              Text("Show Chart", style: TextStyle(color: Colors.grey)),
+              Text("Show Chart", style: Theme.of(context).textTheme.headline6),
               Switch.adaptive(
                   hoverColor: Colors.amber.shade900,
                   activeColor: Theme.of(context).accentColor,
@@ -157,15 +175,24 @@ class _MyHomePageState extends State<MyHomePage> {
       ]
           // mainAxisAlignment: MainAxisAlignment.spaceAround,
           ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          _startAddNewTransaction(context);
-        },
-        elevation: 90,
-      ),
     );
+    return Platform.isIOS
+        ? CupertinoPageScaffold(child: pageBody)
+        : Scaffold(
+            appBar: appBar,
+            body: pageBody,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerDocked,
+            floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+            floatingActionButton: Platform.isIOS
+                ? Container()
+                : FloatingActionButton(
+                    child: Icon(Icons.add),
+                    onPressed: () {
+                      _startAddNewTransaction(context);
+                    },
+                    elevation: 90,
+                  ),
+          );
   }
 }
