@@ -136,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   PreferredSizeWidget _buildCupertinoAppBar() {
     return CupertinoNavigationBar(
-      middle: Text("Personal Expenses",
+      middle: const Text("Personal Expenses",
           style: TextStyle(
               fontFamily: "OpenSans", decorationColor: Colors.white70)),
       trailing: Row(
