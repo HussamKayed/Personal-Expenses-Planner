@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 class NewTransaction extends StatefulWidget {
   final Function addNewtransaction;
 
-  NewTransaction(this.addNewtransaction);
+  const NewTransaction(this.addNewtransaction);
 
   @override
   State<NewTransaction> createState() => _NewTransactionState();
@@ -35,7 +35,7 @@ class _NewTransactionState extends State<NewTransaction> {
     showDatePicker(
             context: context,
             initialDate: DateTime.now(),
-            firstDate: DateTime(2019),
+            firstDate: DateTime(1970),
             lastDate: DateTime.now())
         .then((pickedDate) {
       if (pickedDate == null)

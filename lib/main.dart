@@ -92,6 +92,77 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
+  List<Widget> _buildLandscapeContent(MediaQueryData mediaQuery,
+      Widget txListWidget, PreferredSizeWidget appBar) {
+    return [
+      Row(
+        children: [
+          Text("Show Chart", style: Theme.of(context).textTheme.headline6),
+          Switch.adaptive(
+              hoverColor: Colors.amber.shade900,
+              activeColor: Theme.of(context).accentColor,
+              value: _showChart,
+              onChanged: (val) {
+                setState(() {
+                  _showChart = val;
+                });
+              }),
+        ],
+        mainAxisAlignment: MainAxisAlignment.center,
+      ),
+      _showChart
+          ? Container(
+              height: (mediaQuery.size.height -
+                      appBar.preferredSize.height -
+                      mediaQuery.padding.top) *
+                  0.7,
+              child: Chart(_recentTransactions))
+          : txListWidget
+    ];
+  }
+
+  List<Widget> _buildPortraitContent(MediaQueryData mediaQuery,
+      Widget txListWidget, PreferredSizeWidget appBar) {
+    return [
+      Container(
+          height: (mediaQuery.size.height -
+                  appBar.preferredSize.height -
+                  mediaQuery.padding.top) *
+              0.3,
+          child: Chart(_recentTransactions)),
+      txListWidget
+    ];
+  }
+
+  PreferredSizeWidget _buildCupertinoAppBar() {
+    return CupertinoNavigationBar(
+      middle: Text("Personal Expenses",
+          style: TextStyle(
+              fontFamily: "OpenSans", decorationColor: Colors.white70)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          GestureDetector(
+              child: Icon(CupertinoIcons.add),
+              onTap: () => {_startAddNewTransaction(context)})
+        ],
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildNormalAppBar() {
+    return AppBar(
+      title: Text('Personal Expenses'),
+      actions: <Widget>[
+        IconButton(
+            onPressed: () {
+              _startAddNewTransaction(context);
+            },
+            icon: Icon(Icons.add_box_rounded))
+      ],
+    );
+  }
+
   void _addNewTransaction(String title, double amount, DateTime chosenDate) {
     final newTx =
         Transaction(DateTime.now().toString(), title, amount, chosenDate);
@@ -105,30 +176,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isLandscape = mediaQuery.orientation == Orientation.landscape;
-    final PreferredSizeWidget appBar = Platform.isIOS
-        ? CupertinoNavigationBar(
-            middle: Text("Personal Expenses",
-                style: TextStyle(
-                    fontFamily: "OpenSans", decorationColor: Colors.white70)),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                GestureDetector(
-                    child: Icon(CupertinoIcons.add),
-                    onTap: () => {_startAddNewTransaction(context)})
-              ],
-            ),
-          ) as PreferredSizeWidget
-        : AppBar(
-            title: Text('Personal Expenses'),
-            actions: <Widget>[
-              IconButton(
-                  onPressed: () {
-                    _startAddNewTransaction(context);
-                  },
-                  icon: Icon(Icons.add_box_rounded))
-            ],
-          );
+    final PreferredSizeWidget appBar =
+        Platform.isIOS ? _buildCupertinoAppBar() : _buildNormalAppBar();
 
     final Widget txListWidget = Container(
         height: (mediaQuery.size.height -
@@ -140,38 +189,9 @@ class _MyHomePageState extends State<MyHomePage> {
     final pageBody = SafeArea(
       child: ListView(children: <Widget>[
         if (isLandscape)
-          Row(
-            children: [
-              Text("Show Chart", style: Theme.of(context).textTheme.headline6),
-              Switch.adaptive(
-                  hoverColor: Colors.amber.shade900,
-                  activeColor: Theme.of(context).accentColor,
-                  value: _showChart,
-                  onChanged: (val) {
-                    setState(() {
-                      _showChart = val;
-                    });
-                  }),
-            ],
-            mainAxisAlignment: MainAxisAlignment.center,
-          ),
+          ..._buildLandscapeContent(mediaQuery, txListWidget, appBar),
         if (!isLandscape)
-          Container(
-              height: (mediaQuery.size.height -
-                      appBar.preferredSize.height -
-                      mediaQuery.padding.top) *
-                  0.3,
-              child: Chart(_recentTransactions)),
-        if (!isLandscape) txListWidget,
-        if (isLandscape)
-          _showChart
-              ? Container(
-                  height: (mediaQuery.size.height -
-                          appBar.preferredSize.height -
-                          mediaQuery.padding.top) *
-                      0.7,
-                  child: Chart(_recentTransactions))
-              : txListWidget,
+          ..._buildPortraitContent(mediaQuery, txListWidget, appBar)
       ]
           // mainAxisAlignment: MainAxisAlignment.spaceAround,
           ),
