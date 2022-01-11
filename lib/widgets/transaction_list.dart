@@ -1,18 +1,39 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import './transaction_item.dart';
 import '../models/transaction.dart';
 
-class TransactionList extends StatelessWidget {
+class TransactionList extends StatefulWidget {
   final List<Transaction> transactions;
   final Function delete;
 
   const TransactionList(this.transactions, this.delete);
 
   @override
+  State<TransactionList> createState() => _TransactionListState();
+}
+
+class _TransactionListState extends State<TransactionList> {
+  late Color _bgColor;
+
+  @override
+  void initState() {
+    const availableColors = [
+      Colors.blue,
+      Colors.amber,
+      Colors.purple,
+      Colors.red
+    ];
+    _bgColor = availableColors[Random().nextInt(4)];
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      child: transactions.isEmpty
+      child: widget.transactions.isEmpty
           ? LayoutBuilder(builder: (context, constraints) {
               return Column(
                 children: <Widget>[
@@ -33,9 +54,10 @@ class TransactionList extends StatelessWidget {
           : ListView.builder(
               itemBuilder: (ctx, index) {
                 return TransactionItem(
-                    transaction: transactions[index], delete: delete);
+                    transaction: widget.transactions[index],
+                    delete: widget.delete);
               },
-              itemCount: transactions.length,
+              itemCount: widget.transactions.length,
             ),
     );
   }
